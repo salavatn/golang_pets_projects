@@ -1,5 +1,3 @@
-// Simple console app - calculator
-
 package main
 
 // Импорт модулей / пакетов
@@ -8,9 +6,36 @@ import (
 	"strconv" // Для преобразования чисел в строки
 )
 
-// Точка входа в программу
 func main() {
-	fmt.Println(div(42, -1))
+	var strValueA, strValueB, strMathOperator string
+	fmt.Print("Ваш пример: ")
+	_, errorMsg := fmt.Scanf("%s %s %s", &strValueA, &strMathOperator, &strValueB)
+
+	if errorMsg != nil {
+		fmt.Println("\tОшибка: некорректный ввод")
+		return
+	}
+
+	valueA, errorMsg1 := strconv.Atoi(strValueA)
+	valueB, errorMsg2 := strconv.Atoi(strValueB)
+
+	if errorMsg1 != nil || errorMsg2 != nil {
+		fmt.Println("\tОшибка: некорректный ввод чисел")
+		return
+	}
+
+	if strMathOperator == "+" {
+		fmt.Printf("Ваш результат: %d\n\n", add(valueA, valueB))
+	} else if strMathOperator == "-" {
+		fmt.Printf("Ваш результат: %d\n\n", sub(valueA, valueB))
+	} else if strMathOperator == "*" {
+		fmt.Printf("Ваш результат: %d\n\n", mul(valueA, valueB))
+	} else if strMathOperator == "/" {
+		fmt.Printf("Ваш результат: %s\n\n", div(valueA, valueB))
+	} else {
+		fmt.Println("\tОшибка: некорректная операция")
+		return
+	}
 }
 
 // Функции сложения (add), вычитания (sub), умножения (mul) и деления (div) двух чисел.
