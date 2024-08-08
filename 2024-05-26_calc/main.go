@@ -1,96 +1,62 @@
 package main
 
-// Импорт модулей / пакетов
 import (
-	"fmt"     // Для ввода-вывода
+	"fmt" // Для ввода-вывода
+	"os"
 	"strconv" // Для преобразования чисел в строки
 )
 
 func main() {
-	// MAIN. Part 1: Объявление переменных
 	var userValue_A, userValue_B, userMath_Op string
 
-	// MAIN. Part 2: Ввод примера, есть ли ошибка и сохрание в переменные
-	fmt.Print("Ваш пример: ")
-	_, errorMsg := fmt.Scanf("%s %s %s", &userValue_A, &userMath_Op, &userValue_B)
+	fmt.Printf("Введите пример (ex.: 2 + 5):  ")
+	_, errorMsg := fmt.Scanln(&userValue_A, &userMath_Op, &userValue_B)
 
 	if errorMsg != nil {
-		fmt.Println("\tОшибка: некорректный ввод")
+		fmt.Println("\nERROR: Некорректный ввод данных.\n")
 		return
 	}
 
-	// MAIN. Part 3: Объявление переменных для чисел и конвертация строк в числа
-	arabicNumA, errorMsg1 := strconv.Atoi(userValue_A)
-	arabicNumB, errorMsg2 := strconv.Atoi(userValue_B)
+	number_A, number_B := converter(userValue_A, userValue_B)
+	math_Op := validator(userMath_Op)
 
-	// // MAIN. Part 4: Если введены римские числа, то конвертировать их в арабские
-	// if errorMsg1 != nil {
-	// 	arabicNumA = roman_numbers(userValue_A)
-	// }
+	fmt.Printf("\n%d %s %d. Finish", number_A, math_Op, number_B)
 
-	// MAIN. Part 4: Если конвертация успешна, то выполнить операцию
-	if errorMsg1 == nil && errorMsg2 == nil {
-		if userMath_Op == "+" {
-			fmt.Printf("Ваш результат: %d\n\n", add(arabicNumA, arabicNumB))
-		} else if userMath_Op == "-" {
-			fmt.Printf("Ваш результат: %d\n\n", sub(arabicNumA, arabicNumB))
-		} else if userMath_Op == "*" {
-			fmt.Printf("Ваш результат: %d\n\n", mul(arabicNumA, arabicNumB))
-		} else if userMath_Op == "/" {
-			fmt.Printf("Ваш результат: %s\n\n", div(arabicNumA, arabicNumB))
+	if math_Op == "+" {
+		fmt.Printf("\nСумма чисел %d и %d = %d", number_A, number_B, number_A+number_B)
+	} else if math_Op == "-" {
+		fmt.Printf("\nВычитание чисел %d и %d = %d", number_A, number_B, number_A-number_B)
+	} else if math_Op == "*" {
+		fmt.Printf("\nУмножение чисел %d и %d = %d", number_A, number_B, number_A*number_B)
+	} else if math_Op == "/" {
+		if number_B != 0 {
+			fmt.Printf("\nДеление чисел %d и %d = %d", number_A, number_B, number_A/number_B)
 		} else {
-			fmt.Println("\tОшибка: некорректная операция\n")
-			return
-		}
-	} else if (errorMsg1 == nil && errorMsg2 != nil) || (errorMsg1 != nil && errorMsg2 == nil) {
-		fmt.Println("\tОшибка: некорректный пример")
-		return
-	}
-
-	// MAIN. Part 5: Объявление переменных для римских чисел и конвертация string в int
-	var romanNumA, romanNumB int
-	romanNumA = roman_numbers(userValue_A)
-	romanNumB = roman_numbers(userValue_B)
-
-	// MAIN. Part 6: Если конвертация успешна, то выполнить операцию
-	if romanNumA != -1 && romanNumB != -1 {
-		if userMath_Op == "+" {
-			fmt.Printf("Ваш результат: %d\n\n", add(romanNumA, romanNumB))
-		} else if userMath_Op == "-" {
-			fmt.Printf("Ваш результат: %d\n\n", sub(romanNumA, romanNumB))
-		} else if userMath_Op == "*" {
-			fmt.Printf("Ваш результат: %d\n\n", mul(romanNumA, romanNumB))
-		} else if userMath_Op == "//" {
-			fmt.Printf("Ваш результат: %s\n\n", div(romanNumA, romanNumB))
-		} else {
-			fmt.Println("\tОшибка: некорректная операция\n")
-			return
+			fmt.Println("\nERROR: Деление на ноль запрещено!")
 		}
 	}
-
 }
 
-// Функции сложения (add), вычитания (sub), умножения (mul) и деления (div) двух чисел.
-func add(a int, b int) int {
-	return a + b
-}
+func converter(a string, b string) (int, int) {
+	num_a, errorMsg1 := strconv.Atoi(a)
+	num_b, errorMsg2 := strconv.Atoi(b)
 
-func sub(a int, b int) int {
-	return a - b
-}
-
-func mul(a int, b int) int {
-	return a * b
-}
-
-func div(a int, b int) string {
-	if b == 0 {
-		return "Ошибка: деление на ноль запрещено!"
+	if errorMsg1 != nil || errorMsg2 != nil {
+		fmt.Printf("\nERROR: ошибка преобразования строки в числа\n")
+		os.Exit(1)
 	}
-	result_flt := float64(a) / float64(b)
-	// result_flt := a % b // Деление без остатка
-	result_str := strconv.FormatFloat(float64(result_flt), 'f', 6, 64) // Преобразование числа в строку
-	return string(result_str)
+	return num_a, num_b
+}
+
+func validator(math_op string) string {
+	switch math_op {
+	case "+", "-", "*", "/":
+		return math_op
+	default:
+		fmt.Println("\nERROR: 	Некорректный оператор")
+		fmt.Println("\nMESSAGE: Используйте один из перечисленных \"+\", \"-\", \"*\", \"/\"\n")
+		return ""
+	}
 }
 
 // Функция конвертирования римских чисел в арабские
