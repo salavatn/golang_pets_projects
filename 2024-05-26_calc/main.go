@@ -102,12 +102,16 @@ func check_arabic(a string, b string) {
 
 	if convertingErr1 != nil || convertingErr2 != nil {
 		fmt.Printf("\nOutput: Выдача паники, так как строка не является математической операцией.")
-		return
+		os.Exit(0)
 	}
-	data["number_a"] = num_a
-	data["type_a"] = false
-	data["number_b"] = num_b
-	data["type_b"] = false
+	if num_a >= 1 && num_a <= 10 && num_b >= 1 && num_b <= 10 {
+		data["number_a"] = num_a
+		data["type_a"] = false
+		data["number_b"] = num_b
+		data["type_b"] = false
+	} else {
+		panic("Output: Использовать только числа 1,2, ..., 10!")
+	}
 }
 
 func check_math_op(operation string) {
@@ -130,6 +134,7 @@ func math(a int, op string, b int) {
 	} else if op == "-" {
 		if roman_a == true && roman_b == true {
 			fmt.Println("Output: Выдача паники, так как в римской системе нет отрицательных чисел.")
+			os.Exit(0)
 		}
 		data["result"] = a - b
 	} else if op == "*" {
@@ -139,7 +144,6 @@ func math(a int, op string, b int) {
 			fmt.Println("Output: Выдача паники, так как делить на 0 запрещено!")
 			os.Exit(0)
 		} else if roman_a == true && roman_b == true && (a/b < 1) {
-			fmt.Println("Output: Ментор хочет панику, а её здесь нет!")
 			panic("Паника, так как результат меньше единицы в римской системе!")
 		}
 		data["result"] = a / b
