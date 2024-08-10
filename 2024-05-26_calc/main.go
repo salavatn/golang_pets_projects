@@ -122,11 +122,12 @@ func check_math_op(operation string) {
 }
 
 func math(a int, op string, b int) {
+	roman_a := data["type_a"].(bool)
+	roman_b := data["type_b"].(bool)
+
 	if op == "+" {
 		data["result"] = a + b
 	} else if op == "-" {
-		roman_a := data["type_a"].(bool)
-		roman_b := data["type_b"].(bool)
 		if roman_a == true && roman_b == true {
 			fmt.Println("Output: Выдача паники, так как в римской системе нет отрицательных чисел.")
 		}
@@ -137,6 +138,9 @@ func math(a int, op string, b int) {
 		if b == 0 {
 			fmt.Println("Output: Выдача паники, так как делить на 0 запрещено!")
 			os.Exit(0)
+		} else if roman_a == true && roman_b == true && (a/b < 1) {
+			fmt.Println("Output: Ментор хочет панику, а её здесь нет!")
+			panic("Паника, так как результат меньше единицы в римской системе!")
 		}
 		data["result"] = a / b
 	}
