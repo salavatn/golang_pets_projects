@@ -7,23 +7,26 @@ import (
 	// "time"
 )
 
-var net_host = "192.168.255.255"
-var net_mask = 25
+var net_host = "188.234.148.235"
+var net_mask = 17
 var number = 255
 
 func main() {
-	fmt.Print("Enter IP address:  ")
-	_, _ = fmt.Scanln(&net_host)
-	fmt.Print("Enter mask length: ")
-	_, _ = fmt.Scanln(&net_mask)
+	// fmt.Print("Enter IP address:  ")
+	// _, _ = fmt.Scanln(&net_host)
+	// fmt.Print("Enter mask length: ")
+	// _, _ = fmt.Scanln(&net_mask)
 
-	result := convertIPtoBinary(net_host)
-
-	fmt.Printf("IP Address: 	 %s\n", net_host)
-	fmt.Printf("Network Address: %s\n", getNetworkAddress(result, net_mask))
-	// fmt.Printf("First IP Address: %s\n", firstIP.String())
+	result := getBinaryIP(net_host)
+	// fmt.Printf("result1:	%s\n", result)
+	fmt.Printf("Address:	%s\n", net_host)
+	// fmt.Printf("result2:	%s\n", result)
+	fmt.Printf("Network: 	%s\n", getNetwork(result, net_mask))
+	// fmt.Printf("result3:	%s\n", result)
+	fmt.Printf("HostMin:	%s\n", getHostMin(result, net_mask))
+	// fmt.Printf("result3:	%s\n", result)
 	// fmt.Printf("Last IP Address: %s\n", lastIP.String())
-	// fmt.Printf("Broadcast Address: %s\n", broadcastIP.String())
+	fmt.Printf("Broadcast:	%s\n", getBroadcast(result, net_mask))
 
 }
 
@@ -33,11 +36,11 @@ func validatorNetwork() string {
 	return ""
 }
 
-// convertIPtoBinary принимает строку IP-адреса в формате "192.168.20.1"
+// getBinaryIP принимает строку IP-адреса в формате "192.168.20.1"
 // и возвращает срез строк, где каждый элемент представляет собой
 // бинарное представление соответствующего октета.
 // Пример: "192.168.20.1" > [11000000 10101000 00010100 00000001]
-func convertIPtoBinary(myNetwork string) []string {
+func getBinaryIP(myNetwork string) []string {
 	var binaryIP = make([]string, 0, 4)
 
 	ipParts := strings.Split(myNetwork, ".")
@@ -57,30 +60,34 @@ func convertIPtoBinary(myNetwork string) []string {
 	return binaryIP
 }
 
-// getNetworkAddress принимает срез строк (бинарный IP-адрес) и
+// getNetwork принимает срез строк (бинарный IP-адрес) и
 // целое число (маску сети). Возвращает строку (адрес сети).
 // Например, принимает [11000000 10101000 11111111 11111111] и маску 15.
 // Возвращает "192.254.0.0"
-func getNetworkAddress(binaryNetwork []string, maskNetwork int) string {
+func getNetwork(binaryNet []string, netmask int) string {
+	binaryNetwork := make([]string, 4)
+	copy(binaryNetwork, binaryNet)
+
+	// binaryNetwork := binaryNet
 	var data []string
 
-	if maskNetwork >= 24 {
-		network_bits := 8 - (32 - maskNetwork)
+	if netmask >= 24 {
+		networkOctet := 8 - (32 - netmask)
 		octet := binaryNetwork[3]
-		octet = octet[:network_bits] + strings.Repeat("0", 8-network_bits)
+		octet = octet[:networkOctet] + strings.Repeat("0", 8-networkOctet)
 		binaryNetwork[3] = octet
 
-	} else if maskNetwork >= 16 && maskNetwork < 24 {
-		network_bits := 8 - (32 - maskNetwork - 8)
+	} else if netmask >= 16 && netmask < 24 {
+		networkOctet := 8 - (32 - netmask - 8)
 		octet := binaryNetwork[2]
-		octet = octet[:network_bits] + strings.Repeat("0", 8-network_bits)
+		octet = octet[:networkOctet] + strings.Repeat("0", 8-networkOctet)
 		binaryNetwork[3] = "00000000"
 		binaryNetwork[2] = octet
 
-	} else if maskNetwork >= 8 && maskNetwork < 16 {
-		network_bits := 8 - (32 - maskNetwork - 8 - 8)
+	} else if netmask >= 8 && netmask < 16 {
+		networkOctet := 8 - (32 - netmask - 8 - 8)
 		octet := binaryNetwork[2]
-		octet = octet[:network_bits] + strings.Repeat("0", 8-network_bits)
+		octet = octet[:networkOctet] + strings.Repeat("0", 8-networkOctet)
 		binaryNetwork[3] = "00000000"
 		binaryNetwork[2] = "00000000"
 		binaryNetwork[1] = octet
@@ -92,6 +99,87 @@ func getNetworkAddress(binaryNetwork []string, maskNetwork int) string {
 		data = append(data, str)
 	}
 
+	network := strings.Join(data, ".")
+	mask := strconv.Itoa(netmask)
+	return network + "/" + mask
+}
+
+func getBroadcast(binaryNet []string, netmask int) string {
+	binaryNetwork := make([]string, 4)
+	copy(binaryNetwork, binaryNet)
+	var data []string
+
+	if netmask >= 24 {
+		networkOctet := 8 - (32 - netmask)
+		octet := binaryNetwork[3]
+		octet = octet[:networkOctet] + strings.Repeat("1", 8-networkOctet)
+		binaryNetwork[3] = octet
+
+	} else if netmask >= 16 && netmask < 24 {
+		networkOctet := 8 - (32 - netmask - 8)
+		octet := binaryNetwork[2]
+		octet = octet[:networkOctet] + strings.Repeat("1", 8-networkOctet)
+		binaryNetwork[3] = "11111111"
+		binaryNetwork[2] = octet
+
+	} else if netmask >= 8 && netmask < 16 {
+		networkOctet := 8 - (32 - netmask - 8 - 8)
+		octet := binaryNetwork[2]
+		octet = octet[:networkOctet] + strings.Repeat("1", 8-networkOctet)
+		binaryNetwork[3] = "11111111"
+		binaryNetwork[2] = "11111111"
+		binaryNetwork[1] = octet
+	}
+
+	for _, octet := range binaryNetwork {
+		ip_octet, _ := strconv.ParseInt(octet, 2, 64)
+		str := fmt.Sprintf("%d", ip_octet)
+		data = append(data, str)
+	}
+	// fmt.Println("getBroadcast:  ", binaryNetwork)
+	network := strings.Join(data, ".")
+	return network
+}
+
+func getHostMin(binaryNet []string, netmask int) string {
+	binaryNetwork := make([]string, 4)
+	copy(binaryNetwork, binaryNet)
+	var data []string
+
+	if netmask >= 24 {
+		networkOctet := 8 - (32 - netmask)
+		octet := binaryNetwork[3]
+		octet = octet[:networkOctet] + strings.Repeat("0", 8-networkOctet)
+		// fmt.Println("getHostMin, octet1: ", octet)
+		octet = octet[:7] + "1"
+		// fmt.Println("getHostMin, octet2: ", octet)
+
+		binaryNetwork[3] = octet
+
+	} else if netmask >= 16 && netmask < 24 {
+		networkOctet := 8 - (32 - netmask - 8)
+		octet := binaryNetwork[2]
+		octet = octet[:networkOctet] + strings.Repeat("0", 8-networkOctet)
+		binaryNetwork[3] = "00000001"
+		binaryNetwork[2] = octet
+
+	} else if netmask >= 8 && netmask < 16 {
+		networkOctet := 8 - (32 - netmask - 8 - 8)
+		octet := binaryNetwork[2]
+		fmt.Println("Octet1: ", octet)
+		octet = octet[:networkOctet] + strings.Repeat("0", 8-networkOctet)
+		fmt.Println("Octet2: ", octet)
+		binaryNetwork[3] = "00000001"
+		binaryNetwork[2] = "00000000"
+		binaryNetwork[1] = octet
+	}
+
+	for _, octet := range binaryNetwork {
+		ip_octet, _ := strconv.ParseInt(octet, 2, 64)
+		str := fmt.Sprintf("%d", ip_octet)
+		data = append(data, str)
+	}
+	// fmt.Println("getHostMin:    ", binaryNetwork)
 	network := strings.Join(data, ".")
 	return network
 }
