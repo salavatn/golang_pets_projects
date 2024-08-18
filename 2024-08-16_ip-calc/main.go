@@ -228,3 +228,5 @@ func validatorNetwork(binaryNet []string, netmask int) string {
 
 	return ""
 }
+
+// For green GitHub Timeline! :D
