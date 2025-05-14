@@ -22,3 +22,8 @@ go.work
 
 # Env Files
 .env
+
+.DS_Store
+
+# Local training
+learn/
